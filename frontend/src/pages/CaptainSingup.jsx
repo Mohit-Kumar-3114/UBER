@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { CaptainDataContext } from '../context/CapatainContext'
+import { CaptainDataContext } from '../context/CaptainContext'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
@@ -28,7 +28,7 @@ const CaptainSignup = () => {
       vehicle: {
         color: vehicleColor,
         plate: vehiclePlate,
-        capacity: vehicleCapacity,
+        capacity: Number(vehicleCapacity),
         vehicleType: vehicleType
       }
     }
@@ -141,7 +141,7 @@ const CaptainSignup = () => {
               <option value="" disabled>Select Vehicle Type</option>
               <option value="car">Car</option>
               <option value="auto">Auto</option>
-              <option value="moto">Moto</option>
+              <option value="motorcycle">MotorCycle</option>
             </select>
           </div>
 
