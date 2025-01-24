@@ -28,4 +28,11 @@ const captainRegisterSchema=z.object({
     //     lng: z.number().optional(),
     // })
 })
-module.exports={registerSchema , logInSchema, captainRegisterSchema}
+
+const addressSchema = z.string().min(3, "Address cannot be empty");
+
+const distanceTimeSchema = z.object({
+    origin: z.string().min(3, "Origin must be at least 3 characters long."),
+    destination: z.string().min(3, "Destination must be at least 3 characters long."),
+  });
+module.exports={registerSchema , logInSchema, captainRegisterSchema, addressSchema,distanceTimeSchema}
