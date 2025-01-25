@@ -1,9 +1,12 @@
 import { createContext, useState, useContext } from 'react';
 
-export const CaptainDataContext = createContext();
+export const CaptainContextData = createContext();
 
 const CaptainContext = ({ children }) => {
-    const [ captain, setCaptain ] = useState(null);
+    const [ captain, setCaptain ] = useState({
+        name:'',
+        email:''
+    });
     const [ isLoading, setIsLoading ] = useState(false);
     const [ error, setError ] = useState(null);
 
@@ -11,20 +14,19 @@ const CaptainContext = ({ children }) => {
         setCaptain(captainData);
     };
 
-    const value = {
-        captain,
-        setCaptain,
-        isLoading,
-        setIsLoading,
-        error,
-        setError,
-        updateCaptain
-    };
 
     return (
-        <CaptainDataContext.Provider value={value}>
+        <CaptainContextData.Provider value={ {
+            captain,
+            setCaptain,
+            isLoading,
+            setIsLoading,
+            error,
+            setError,
+            updateCaptain
+        }}>
             {children}
-        </CaptainDataContext.Provider>
+        </CaptainContextData.Provider>
     );
 };
 

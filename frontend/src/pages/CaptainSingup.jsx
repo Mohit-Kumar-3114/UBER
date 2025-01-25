@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { CaptainDataContext } from '../context/CaptainContext'
+import { CaptainContextData } from '../context/CaptainContext'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
@@ -16,7 +16,7 @@ const CaptainSignup = () => {
   const [ vehicleType, setVehicleType ] = useState('')
 
 
-  const { captain, setCaptain } = React.useContext(CaptainDataContext)
+  const { setCaptain } = React.useContext(CaptainContextData)
 
 
   const submitHandler = async (e) => {
@@ -141,7 +141,7 @@ const CaptainSignup = () => {
               <option value="" disabled>Select Vehicle Type</option>
               <option value="car">Car</option>
               <option value="auto">Auto</option>
-              <option value="motorcycle">MotorCycle</option>
+              <option value="moto">MotorCycle</option>
             </select>
           </div>
 

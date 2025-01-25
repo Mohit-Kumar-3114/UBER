@@ -10,6 +10,10 @@ import Home from './pages/Home'
 import CaptainLogout from './pages/CaptainLogout'
 import CaptainHome from './pages/CaptainHome'
 import CaptainProtectWrapper from './pages/CaptainProtectedWrapper'
+import Riding from './pages/Riding'
+import CaptainRiding from './pages/CaptainRiding'
+import 'remixicon/fonts/remixicon.css'
+
 function App() {
 
   
@@ -25,6 +29,8 @@ function App() {
    <Route path='/user/logout' element={<UserLogout />} />
    <Route path='/captain-home' element={<CaptainProtectWrapper><CaptainHome /></CaptainProtectWrapper>} />
    <Route path='/captain/logout' element={<CaptainLogout />} />
+   <Route path='/riding' element={<Riding />} />
+   <Route path='/captain-riding' element={<CaptainRiding />} />
 
    </Routes>
     </BrowserRouter>

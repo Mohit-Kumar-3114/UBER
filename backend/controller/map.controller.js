@@ -139,4 +139,4 @@ let getAutoCompleteSuggestions = async (req, res) => {
     }
 }
 
-module.exports={getCoordinates, getDistanceTime,getAutoCompleteSuggestions}
+module.exports={getCoordinates, getDistanceTime,getAutoCompleteSuggestions,getDistanceTimeHelper, getAddressCoordinate}
