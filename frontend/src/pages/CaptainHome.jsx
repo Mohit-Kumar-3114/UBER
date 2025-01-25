@@ -48,14 +48,11 @@ const CaptainHome = () => {
     }, [])
 
     socket.on('new-ride', (data) => {
-        if (data) {
+            console.log("hi there ")
             console.log(data);
             setRide(data);
             setRidePopupPanel(true);
-        } else {
-            console.error('Received invalid data:', data);
-        }
-    });
+        } );
     
 
     async function confirmRide() {

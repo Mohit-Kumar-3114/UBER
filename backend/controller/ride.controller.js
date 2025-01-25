@@ -6,7 +6,7 @@ const {sendMessageToSocketId }=require("../socket")
 
 
 
-const getCaptainsInTheRadius = async (userLtd, userLng, radius) => {
+const getCaptainsInTheRadius = async (userLtd, userLng, radius,vehicleType) => {
    
     const captains = await captainModel.find({});
   
@@ -29,11 +29,84 @@ const getCaptainsInTheRadius = async (userLtd, userLng, radius) => {
     const captainsInRadius = captains.filter(captain => {
         const { ltd, lng } = captain.location;
         const distance = calculateDistance(userLtd, userLng, ltd, lng); 
-        return distance <= radius; 
+        return distance <= radius && captain.vehicle.vehicleType === vehicleType;
     });
 
     return captainsInRadius;
 };
+
+
+
+
+const confirmRideHelper = async ({rideId, captainId}) => {
+    if (!rideId) {
+        throw new Error('Ride id is required');
+    }
+
+    await rideModel.findOneAndUpdate({_id: rideId}, {
+        status: 'accepted',
+        captain: captainId
+    })
+
+    const ride = await rideModel.findOne({_id: rideId}).populate('user').populate('captain').select('+otp');
+
+    if (!ride) {
+        throw new Error('Ride not found');
+    }
+
+    return ride;
+
+}
+
+
+
+
+const startRideHelper = async ({ rideId, otp, captain }) => {
+    if (!rideId || !otp) {
+        throw new Error('Ride id and OTP are required');
+    }
+
+    const ride = await rideModel.findOne({_id: rideId}).populate('user').populate('captain').select('+otp');
+
+    if (!ride) {
+        throw new Error('Ride not found');
+    }
+
+    if (ride.status !== 'accepted') {
+        throw new Error('Ride not accepted');
+    }
+
+    if (ride.otp !== otp) {
+        throw new Error('Invalid OTP');
+    }
+
+    await rideModel.findOneAndUpdate({ _id: rideId}, {status: 'ongoing' })
+
+    return ride;
+}
+
+
+
+
+const endRideHelper = async ({ rideId}) => {
+    if (!rideId) {
+        throw new Error('Ride id is required');
+    }
+
+    const ride = await rideModel.findOne({ _id: rideId}).populate('user').populate('captain').select('+otp');
+
+    if (!ride) {
+        throw new Error('Ride not found');
+    }
+
+    if (ride.status !== 'ongoing') {
+        throw new Error('Ride not ongoing');
+    }
+
+    await rideModel.findOneAndUpdate({ _id: rideId }, {status: 'completed'})
+
+    return ride;
+}
 
 
 
@@ -81,7 +154,6 @@ const createRide = async (req, res) => {
     if (!result.success) {
         return res.status(400).json({ error: result.error.errors[0].message });
       }
-    
     let a=result.data
     try {
         const otp = Math.floor(1000 + Math.random() * 9000);
@@ -89,7 +161,7 @@ const createRide = async (req, res) => {
         res.status(201).json(ride);
 
         const pickupCoordinates = await getAddressCoordinate(a.pickup);
-        const captainsInRadius = await getCaptainsInTheRadius(pickupCoordinates.ltd, pickupCoordinates.lng, 10);
+        const captainsInRadius = await getCaptainsInTheRadius(pickupCoordinates.ltd, pickupCoordinates.lng, 10,a.vehicleType);
 
         ride.otp = ""
 
@@ -114,4 +186,72 @@ const createRide = async (req, res) => {
 };
 
 
-module.exports ={createRide,getFare}
+
+
+const confirmRide = async (req, res) => {
+    const { rideId,captainId } = req.body;
+
+    try {
+        const ride = await confirmRideHelper({ rideId, captainId });
+
+        sendMessageToSocketId(ride.user.socketId, {
+            event: 'ride-confirmed',
+            data: ride
+        })
+
+        return res.status(200).json(ride);
+    } catch (err) {
+
+        console.log(err);
+        return res.status(500).json({ message: err.message });
+    }
+}
+
+
+
+
+const startRide = async (req, res) => {
+
+    const { rideId, otp } = req.query;
+
+    try {
+        const ride = await startRideHelper({ rideId, otp, captain: req.captain });
+
+        console.log(ride);
+
+        sendMessageToSocketId(ride.user.socketId, {
+            event: 'ride-started',
+            data: ride
+        })
+
+        return res.status(200).json(ride);
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
+    }
+}
+
+
+
+
+const endRide = async (req, res) => {
+
+
+    const { rideId} = req.body;
+    console.log({rideId})
+
+    try {
+        const ride = await endRideHelper({ rideId});
+
+        sendMessageToSocketId(ride.user.socketId, {
+            event: 'ride-ended',
+            data: ride
+        })
+        return res.status(200).json(ride);
+    } catch (err) {
+        console.log(err)
+        return res.status(400).json( "hi there " );
+    } 
+}
+
+
+module.exports ={createRide,getFare, confirmRide,startRide,endRide}

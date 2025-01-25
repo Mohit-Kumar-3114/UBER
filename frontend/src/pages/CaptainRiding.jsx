@@ -14,6 +14,7 @@ const CaptainRiding = () => {
 
 
 
+
     useGSAP(function () {
         if (finishRidePanel) {
             gsap.to(finishRidePanelRef.current, {
